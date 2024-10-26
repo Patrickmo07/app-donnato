@@ -1,0 +1,110 @@
+-- Crear la base de datos
+CREATE DATABASE bddonato;
+USE bddonato;
+
+-- Crear la tabla Usuarios
+CREATE TABLE Usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    contraseña VARCHAR(255) NOT NULL,
+    rol ENUM('cliente', 'empleado', 'admin') NOT NULL
+);
+
+-- Crear la tabla Restaurantes
+CREATE TABLE Restaurantes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    ubicación VARCHAR(255) NOT NULL,
+    teléfono VARCHAR(15),
+    tipo_cocina VARCHAR(50)
+);
+
+-- Crear la tabla Menú
+CREATE TABLE Menú (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    restaurante_id INT,
+    nombre_plato VARCHAR(100) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    descripción TEXT,
+    disponible BOOLEAN NOT NULL,
+    FOREIGN KEY (restaurante_id) REFERENCES Restaurantes(id) ON DELETE CASCADE
+);
+
+-- Crear la tabla Órdenes
+CREATE TABLE Órdenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    restaurante_id INT,
+    fecha DATETIME NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    estado ENUM('pendiente', 'completada', 'cancelada') NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (restaurante_id) REFERENCES Restaurantes(id) ON DELETE CASCADE
+);
+
+-- Crear la tabla Detalles_Orden
+CREATE TABLE Detalles_Orden (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    orden_id INT,
+    plato_id INT,
+    cantidad INT NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (orden_id) REFERENCES Órdenes(id) ON DELETE CASCADE,
+    FOREIGN KEY (plato_id) REFERENCES Menú(id) ON DELETE CASCADE
+);
+
+-- Crear la tabla Reservas
+CREATE TABLE Reservas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    restaurante_id INT,
+    fecha_hora DATETIME NOT NULL,
+    número_personas INT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (restaurante_id) REFERENCES Restaurantes(id) ON DELETE CASCADE
+);
+
+-- Insertar datos en la tabla Usuarios
+INSERT INTO Usuarios (nombre, email, contraseña, rol) VALUES
+('Juan Pérez', 'juan@example.com', 'hashed_password_1', 'cliente'),
+('María López', 'maria@example.com', 'hashed_password_2', 'cliente'),
+('Carlos Ruiz', 'carlos@example.com', 'hashed_password_3', 'empleado'),
+('Ana Torres', 'ana@example.com', 'hashed_password_4', 'admin');
+
+-- Insertar datos en la tabla Restaurantes
+INSERT INTO Restaurantes (nombre, ubicación, teléfono, tipo_cocina) VALUES
+('Don Nato Callao', 'Calle Falsa 123', '123456789', 'Italiana'),
+('Don Nato San Miguel', 'Avenida Siempre Viva 742', '987654321', 'Mexicana'),
+('Don Nato Surco', 'Boulevard del Sushi 45', '456789123', 'Japonesa'),
+('Don Nato Los Olivos', 'Plaza de la Comida 8', '321654987', 'Americana');
+
+-- Insertar datos en la tabla Menú
+INSERT INTO Menú (restaurante_id, nombre_plato, precio, descripción, disponible) VALUES
+(1, 'Espaguetis Carbonara', 12.50, 'Espaguetis con salsa carbonara y panceta.', true),
+(1, 'Lasagna', 15.00, 'Lasagna casera con carne y queso.', true),
+(2, 'Tacos al Pastor', 8.00, 'Tacos de cerdo marinado con piña.', true),
+(3, 'Sushi Variado', 20.00, 'Selección de sushi fresco.', true),
+(4, 'Hamburguesa Clásica', 10.00, 'Hamburguesa con queso, lechuga y tomate.', true);
+
+-- Insertar datos en la tabla Órdenes
+INSERT INTO Órdenes (usuario_id, restaurante_id, fecha, total, estado) VALUES
+(1, 1, '2024-10-24 12:30:00', 27.50, 'completada'),
+(2, 2, '2024-10-24 13:00:00', 16.00, 'pendiente'),
+(1, 3, '2024-10-24 14:00:00', 20.00, 'completada'),
+(2, 4, '2024-10-24 15:00:00', 10.00, 'cancelada');
+
+-- Insertar datos en la tabla Detalles_Orden
+INSERT INTO Detalles_Orden (orden_id, plato_id, cantidad, subtotal) VALUES
+(1, 1, 1, 12.50),
+(1, 2, 1, 15.00),
+(2, 3, 2, 16.00),
+(3, 4, 1, 20.00),
+(4, 5, 1, 10.00);
+
+-- Insertar datos en la tabla Reservas
+INSERT INTO Reservas (usuario_id, restaurante_id, fecha_hora, número_personas) VALUES
+(1, 1, '2024-10-25 19:00:00', 2),
+(2, 2, '2024-10-25 20:00:00', 4),
+(1, 3, '2024-10-25 18:30:00', 1),
+(4, 4, '2024-10-25 21:00:00', 3);
